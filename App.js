@@ -1,19 +1,19 @@
-import React, {Component} from 'react';
-import {Text, View} from 'react-native';
-import {createStackNavigator} from 'react-navigation';
+import React, { Component } from 'react';
+import { createStackNavigator } from 'react-navigation';
 
-class HomeScreen extends Component {
+// Vistas
+import Home from "./src/Views/Home";
+import Results from "./src/Views/Results";
+
+const RootStack = createStackNavigator({
+  HomeScreen: Home,
+  ResultScreen: Results,
+},{
+  initialRouteName: 'HomeScreen'
+});
+
+export default class App extends Component {
   render() {
-    return(
-      <View style={{ flex:1,alignItems:'center',justifyContent:'center'}}>
-        <Text>Home Screen</Text>
-      </View>
-    );
+    return <RootStack />;
   }
 }
-
-export default createStackNavigator({
-  Home: {
-    screen: HomeScreen
-  },
-});

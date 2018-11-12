@@ -1,0 +1,3 @@
+rootProject.name = 'calc_redes_native'
+
+include ':app'
