@@ -30,7 +30,7 @@ export default class Home extends Component {
       disabled_button: true,
     }
     this.getNetworkMask = this.getNetworkMask.bind(this);
-    this.getIp = this.bind(this);
+    this.getIp = this.getIp.bind(this);
   }
   /**
    * ### Render (Obligatorio)
@@ -40,27 +40,24 @@ export default class Home extends Component {
   render() {
     this.state.disabled_button = (this.state.disabled_ip == false && this.state.disabled_mask == false) ? false : true;
     return(
-      <View>
-        {/* recolectamos los datos: ip y máscara */}
-        <View style={styles.contentView}>
-          {/* componente que permite ingresar una ip */}
-          <IP sendIP={this.getIp} />
-          <Text style={styles.size}>Máscara de Subred</Text>
-          {/* componente que muestra un select para elegir la subred */}
-          <NetworkMask sendValue={this.getNetworkMask}/>
-          <View style={{ alignItems: 'center' }}>
-            {/* botón que envía la ip y la mascara de red 
-              * se activa cuando los datos del mini-formulario han sido validados con exito
-              * */}
-            <TouchableOpacity
-              title='Calcular'
-              style={styles.submit}
-              onPress={() => this.props.navigation.navigate('ResultScreen')}
-              // disabled={this.state.disabled_button}>
-              disabled={false}>
-              <Text style={styles.submitText}>Calcular</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.contentView}>
+        {/* componente que permite ingresar una ip */}
+        <IP sendIP={this.getIp} />
+        <Text style={styles.size}>Máscara de Subred</Text>
+        {/* componente que muestra un select para elegir la subred */}
+        <NetworkMask sendValue={this.getNetworkMask}/>
+        <View style={{ alignItems: 'center' }}>
+          {/* botón que envía la ip y la mascara de red 
+            * se activa cuando los datos del mini-formulario han sido validados con exito
+            * */}
+          <TouchableOpacity
+            title='Calcular'
+            style={styles.submit}
+            onPress={() => this.props.navigation.navigate('ResultScreen', {ip: this.state.ip_address, mask: this.state.network_mask})}
+            // disabled={this.state.disabled_button}>
+            disabled={false}>
+            <Text style={styles.submitText}>Calcular</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -73,7 +70,7 @@ export default class Home extends Component {
    * Obtiene la ip del componente hijo y setea las propiedades:
    * **disabled_ip** y **select_mask**
    */
-  getIP(val, isDisabled) {
+  getIp(val, isDisabled) {
     if (val != '') {
       if (isDisabled) this.setState({disabled_ip: false, ip_address: val})
       else this.setState({disabled_ip: true})

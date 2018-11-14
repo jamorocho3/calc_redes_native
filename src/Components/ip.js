@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import {
   View,
   Text,
-  TextInput
+  TextInput,
+  StyleSheet
 } from "react-native";
 
 export default class IP extends Component {
@@ -38,7 +39,7 @@ export default class IP extends Component {
   render() {
     state = this.props.state;
     return (
-      <View style={{ marginBottom: 10 }}>
+      <View style={styles.contentView}>
         <Text style={styles.textLabel}>Dirección IP</Text>
         <TextInput
           style={styles.textInput}
@@ -47,6 +48,7 @@ export default class IP extends Component {
           onChangeText={(ip) => {
             isCorrect = !this.validarIP(ip)
             this.setState({ ip })
+            // this.props.sendIP(ip, isCorrect)
             if (isCorrect) this.props.sendIP(ip, isCorrect)
             else this.props.sendIP(ip, isCorrect)
           }}
@@ -109,9 +111,7 @@ export default class IP extends Component {
 }
 
 const styles = StyleSheet.create({
-  textLabel: {
-    fontSize: 13
-  }, textInput: {
-    height: 40
-  }
+  contentView: { marginBottom: 10 },
+  textLabel: { fontSize: 13 },
+  textInput: { height: 40 }
 });
