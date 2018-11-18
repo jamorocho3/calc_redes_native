@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  Text,
-  StyleSheet
-} from 'react-native';
+import { Button, Divider } from 'react-native-elements';
+import { View, ScrollView, StyleSheet } from 'react-native';
+// Components
+import DataResults from "../Components/data_results";
 
 export default class Results extends Component {
   constructor() {
@@ -26,8 +23,7 @@ export default class Results extends Component {
   }
   toggle() {
     this.setState({ isVisible: !this.state.isVisible });
-    // this.setState({textButton: this.state.isVisible ? 'Binario':'Decimal'})
-    this.state.isVisible ? this.setState({ textButton: 'Binario' }) : this.setState({ textButton: 'Decimal' })
+    this.setState({textButton: this.state.isVisible ? 'Binario':'Decimal'});
   }
   bin2dec(binary) { return parseInt(binary, 2) }
   dec2bin(decimal) { return parseInt(decimal.toString(2)) }
@@ -61,13 +57,24 @@ export default class Results extends Component {
   render() {
     return (
       <ScrollView>
-        <TouchableOpacity style={styles.buttonTop}
-          onPress={this.toggle.bind(this)}>
-          <Text style={[styles.textLarge, styles.textWhite]}>{this.state.textButton}</Text>
-        </TouchableOpacity>
-        <View style={styles.contentView}>
-          {this.state.isVisible ? 
-            <DecimalResults data={this.state} /> : <BinaryResults data={this.state} />}
+        <Button 
+          buttonStyle={styles.buttonTop}
+          textStyle={{ fontSize: 18 }}
+          backgroundColor={styles.primary.color}
+          onPress={this.toggle.bind(this)}
+          title={this.state.textButton} />
+        <View>
+          {this.state.isVisible ? <DataResults data={this.state}/> :
+            <DataResults data={{
+               red: this.getBinary(this.state.red),
+               mascara_red: this.getBinary(this.state.mascara_red),
+               clase: this.state.clase,
+               host_ini: this.getBinary(this.state.host_ini),
+               host_fin: this.getBinary(this.state.host_fin),
+               broadcast: this.getBinary(this.state.broadcast),
+            }}/>
+          }
+          <Divider style={styles.divider} />
         </View>
       </ScrollView>
     );
@@ -160,99 +167,17 @@ export default class Results extends Component {
     return `${this.pad(this.dec2bin(parseInt(first)), 8)}.${this.pad(this.dec2bin(parseInt(second)), 8)}.${this.pad(this.dec2bin(parseInt(third)), 8)}.${this.pad(this.dec2bin(parseInt(fourth)), 8)}`;
   }
 }
-/**
- * ### DecimalResults (Stateless Component)
- * @param {Object} props propiedad data que se pasa al componente 
- * 
- * Muestra una vista con todas las propiedades que podemos encontrar de una red,
- * elementos imprescindibles para el subneteo
- */
-const DecimalResults = (props) => {
-  return (
-    <View>
-      {/* {Red */}
-      <Text style={[styles.textSmall]}>Red</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.red}</Text>
-      {/* Submascara de Red */}
-      <Text style={[styles.textSmall]}>Máscara de Red</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.mascara_red}</Text>
-      {/* Clase */}
-      <Text style={[styles.textSmall]}>Clase</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.clase}</Text>
-      {/* Inicio de Host */}
-      <Text style={[styles.textSmall]}>Inicio de Host</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.host_ini}</Text>
-      {/* Fin de host */}
-      <Text style={[styles.textSmall]}>Fin de Host</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.host_fin}</Text>
-      {/* Broadcast */}
-      <Text style={[styles.textSmall]}>Broadcast</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.broadcast}</Text>
-    </View>
-  );
-}
-/**
- * ### BinaryResults (Stateless Component)
- * @param {Object} props propiedad data que se pasa al componente 
- * 
- * Muestra una vista con todas las propiedades que podemos encontrar de una red (en binario),
- * elementos imprescindibles para el subneteo
- */
-const BinaryResults = (props) => {
-  let bin = new Results();
-  return (
-    <View>
-      {/* Red */}
-      <Text style={[styles.textSmall]}>Red</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{bin.getBinary(props.data.red)}</Text>
-      {/* Submascara de Red */}
-      <Text style={[styles.textSmall]}>Máscara de Red</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{bin.getBinary(props.data.mascara_red)}</Text>
-      {/* Clase */}
-      <Text style={[styles.textSmall]}>Clase</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.clase}</Text>
-      {/* Inicio de Host */}
-      <Text style={[styles.textSmall]}>Inicio de Host</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{bin.getBinary(props.data.host_ini)}</Text>
-      {/* Fin de host */}
-      <Text style={[styles.textSmall]}>Fin de Host</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{bin.getBinary(props.data.host_fin)}</Text>
-      {/* Broadcast */}
-      <Text style={[styles.textSmall]}>Broadcast</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{bin.getBinary(props.data.broadcast)}</Text>
-    </View>
-  );
-}
+
 const styles = StyleSheet.create({
-  contentView: {
-    marginTop: '5%',
-    marginLeft: '10%',
-    marginRight: '10%',
-    marginBottom: '60%'
+  primary: { color: '#00695c' }, 
+  divider: {
+    marginLeft: '4%',
+    marginRight: '4%',
+    backgroundColor: '#00695c',
+    marginTop: '4%'
   },
-  textSmall: { fontSize: 14, },
-  textMedium: { fontSize: 15, },
-  textLarge: { fontSize: 18, },
-  textBlack: { color: 'black' },
-  textWhite: { color: 'white' },
-  textContent: { paddingVertical: '1%', paddingLeft: '2%', backgroundColor: '#545454' },
   buttonTop: {
-    width: '100%',
-    alignItems: 'center',
-    backgroundColor: '#222222',
-    paddingVertical: '3%'
-  },
-  label: {
-    alignSelf: 'flex-end',
-    fontSize: 18,
-    color: 'black',
-  },
-  labelResult: {
-    alignSelf: 'flex-start',
-    fontSize: 18,
-    color: 'black',
-  },
-  labelstart: {
-    alignSelf: 'flex-start',
+    marginLeft:'-5%',
+    marginRight:'-5%'
   }
 });

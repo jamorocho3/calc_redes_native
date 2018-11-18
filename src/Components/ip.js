@@ -1,8 +1,8 @@
 import React, { Component } from "react";
+import { FormLabel, FormInput } from 'react-native-elements'
 import {
   View,
   Text,
-  TextInput,
   StyleSheet
 } from "react-native";
 
@@ -40,19 +40,15 @@ export default class IP extends Component {
     state = this.props.state;
     return (
       <View style={styles.contentView}>
-        <Text style={styles.textLabel}>Dirección IP</Text>
-        <TextInput
-          style={styles.textInput}
+        <FormLabel>Dirección IP</FormLabel>
+        <FormInput
           placeholder='Ingresa una dirección IP'
           keyboardType={'numeric'}
           onChangeText={(ip) => {
             isCorrect = !this.validarIP(ip)
             this.setState({ ip })
-            // this.props.sendIP(ip, isCorrect)
-            if (isCorrect) this.props.sendIP(ip, isCorrect)
-            else this.props.sendIP(ip, isCorrect)
-          }}
-        />
+            this.props.sendIP(ip, isCorrect)
+          }}/>
         <View style={this.state.validating_ip}>
           <Text style={{ color: 'white' }}>{this.state.state_ip}</Text>
         </View>
@@ -85,7 +81,7 @@ export default class IP extends Component {
           alignItems: 'center',
           justifyContent: 'center',
           height: 40,
-          backgroundColor: '#CF2A27'
+          backgroundColor: '#ff5f52'
         }
       })
     } else if (error == false) {
@@ -97,7 +93,7 @@ export default class IP extends Component {
           alignItems: 'center',
           justifyContent: 'center',
           height: 40,
-          backgroundColor: '#009E0F'
+          backgroundColor: '#439889'
         }
       })
       // TODO: proxima actualización
@@ -112,6 +108,4 @@ export default class IP extends Component {
 
 const styles = StyleSheet.create({
   contentView: { marginBottom: 10 },
-  textLabel: { fontSize: 13 },
-  textInput: { height: 40 }
 });

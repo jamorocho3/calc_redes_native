@@ -1,8 +1,8 @@
 import React, { Component } from "react";
+import { FormLabel } from 'react-native-elements'
 import {
   View,
   Picker,
-  Text,
   StyleSheet
 } from "react-native";
 // data
@@ -19,8 +19,8 @@ export default class NetworkMask extends Component {
    * _super(props)_ antes de cualquier otra linea de código.
    * De otra manera _this.props_ será _undefined_ en el constructor, lo cual puede ocasionar bugs.
    */
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     this.state = { network_mask: '' };
   }
   /**
@@ -31,30 +31,31 @@ export default class NetworkMask extends Component {
   render() {
     state = this.props.state;
     return (
-      <View style={styles.contentView}>
-        <View style={styles.leftSpinner}>
-          <Text style={styles.textLabel}>Decimal</Text>
-          <Picker
-            mode={'dialog'}
-            selectedValue={this.state.network_mask}
-            onValueChange={(itemValue, itemIndex) => {
-              this.setState({ network_mask: itemValue })
-              this.props.sendValue(itemValue)
-            }}>
-            {value.map((data, i) => { return <Picker.Item label={data.dec} value={data.dec} key={i} /> })}
-          </Picker>
-        </View>
-        <View style={styles.rightSpinner} >
-          <Text style={styles.textLabel}>Bits</Text>
-          <Picker
-            mode={'dialog'}
-            selectedValue={this.state.network_mask}
-            onValueChange={(itemValue, itemIndex) => {
-              this.setState({ network_mask: itemValue })
-              this.props.sendValue(itemValue)
-            }}>
-            {value.map((data, i) => { return <Picker.Item label={data.bit} value={data.dec} key={i} /> })}
-          </Picker>
+      <View>
+        <FormLabel>Máscara de Subred</FormLabel>
+        <View style={styles.contentView}>
+          <View style={styles.leftSpinner}>
+            <Picker
+              mode={'dialog'}
+              selectedValue={this.state.network_mask}
+              onValueChange={(itemValue, itemIndex) => {
+                this.setState({ network_mask: itemValue })
+                this.props.sendValue(itemValue)
+              }}>
+              {value.map((data, i) => { return <Picker.Item label={data.dec} value={data.dec} key={i} /> })}
+            </Picker>
+          </View>
+          <View style={styles.rightSpinner} >
+            <Picker
+              mode={'dialog'}
+              selectedValue={this.state.network_mask}
+              onValueChange={(itemValue, itemIndex) => {
+                this.setState({ network_mask: itemValue })
+                this.props.sendValue(itemValue)
+              }}>
+              {value.map((data, i) => { return <Picker.Item label={data.bit} value={data.dec} key={i} /> })}
+            </Picker>
+          </View>
         </View>
       </View>
     );
@@ -65,5 +66,4 @@ const styles = StyleSheet.create({
   contentView: { flexDirection: 'row' },
   leftSpinner: { width: '55%' },
   rightSpinner: { width: '45%' },
-  textLabel: { fontSize: 13 },
 });

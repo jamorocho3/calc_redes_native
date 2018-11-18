@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { 
-  StyleSheet,
-  TouchableOpacity,
-  Text, 
-  View 
-} from 'react-native';
+  Button,
+  Divider,
+  Card,
+} from 'react-native-elements';
 //componentes
 import IP from '../Components/ip';
 import NetworkMask from '../Components/network_mask';
@@ -40,24 +40,24 @@ export default class Home extends Component {
   render() {
     this.state.disabled_button = (this.state.disabled_ip == false && this.state.disabled_mask == false) ? false : true;
     return(
-      <View style={styles.contentView}>
-        {/* componente que permite ingresar una ip */}
-        <IP sendIP={this.getIp} />
-        <Text style={styles.size}>Máscara de Subred</Text>
-        {/* componente que muestra un select para elegir la subred */}
-        <NetworkMask sendValue={this.getNetworkMask}/>
-        <View style={{ alignItems: 'center' }}>
-          {/* botón que envía la ip y la mascara de red 
-            * se activa cuando los datos del mini-formulario han sido validados con exito
-            * */}
-          <TouchableOpacity
-            title='Calcular'
-            style={styles.submit}
+      <View>
+        <Card>
+          <IP sendIP={this.getIp} />
+        </Card>
+        <Card>
+          <NetworkMask sendValue={this.getNetworkMask}/>
+        </Card>
+        <View style={styles.contentView}>
+          <Button
+            raised
+            backgroundColor={styles.primary.color} 
+            borderRadius={2}
+            icon={{name: 'cached'}}
+            disabled={this.state.disabled_button}
             onPress={() => this.props.navigation.navigate('ResultScreen', {ip: this.state.ip_address, mask: this.state.network_mask})}
-            // disabled={this.state.disabled_button}>
-            disabled={false}>
-            <Text style={styles.submitText}>Calcular</Text>
-          </TouchableOpacity>
+            large={false}
+            title='CALCULAR' />
+          <Divider style={styles.divider} />
         </View>
       </View>
     );
@@ -90,20 +90,16 @@ export default class Home extends Component {
 }
 
 const styles = StyleSheet.create({
+  primary: { color: '#00695c' },
   contentView: {
-    marginTop: '5%',
-    marginLeft: '10%', 
-    marginRight: '10%', 
-    marginBottom: '5%'
-  },size: {
+    marginTop: '4%',
+    marginBottom: '2%'
+  }, size: {
     fontSize: 13
-  },submit: {
-    backgroundColor: '#222222',
-    paddingVertical: '4%',
-    paddingHorizontal: '6%',
-    borderRadius: 4
-  },submitText : {
-    color: 'white',
-    fontSize: 18
+  }, divider: {
+    marginLeft: '4%',
+    marginRight: '4%',
+    backgroundColor: '#00695c',
+    marginTop: '4%'
   }
 });
