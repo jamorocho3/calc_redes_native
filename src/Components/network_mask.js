@@ -37,11 +37,11 @@ export default class NetworkMask extends Component {
           <Picker
             mode={'dialog'}
             selectedValue={this.state.network_mask}
-            onValueChange={(itemIndex, itemValue) => {
-              this.setState({ network_mask: itemIndex })
+            onValueChange={(itemValue, itemIndex) => {
+              this.setState({ network_mask: itemValue })
               this.props.sendValue(itemValue)
             }}>
-            {value.map((data, i) => { return <Picker.Item label={data.dec} value={data.pos} key={i} /> })}
+            {value.map((data, i) => { return <Picker.Item label={data.dec} value={data.dec} key={i} /> })}
           </Picker>
         </View>
         <View style={styles.rightSpinner} >
@@ -49,11 +49,11 @@ export default class NetworkMask extends Component {
           <Picker
             mode={'dialog'}
             selectedValue={this.state.network_mask}
-            onValueChange={(itemIndex, itemValue) => {
-              this.setState({ network_mask: itemIndex })
+            onValueChange={(itemValue, itemIndex) => {
+              this.setState({ network_mask: itemValue })
               this.props.sendValue(itemValue)
             }}>
-            {value.map((data, i) => { return <Picker.Item label={data.bit} value={data.pos} key={i} /> })}
+            {value.map((data, i) => { return <Picker.Item label={data.bit} value={data.dec} key={i} /> })}
           </Picker>
         </View>
       </View>

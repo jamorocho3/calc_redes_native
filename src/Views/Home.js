@@ -24,7 +24,7 @@ export default class Home extends Component {
     super(props);
     this.state = {
       ip_address: '',
-      network_mask: 0,
+      network_mask: '',
       disabled_ip: true,
       disabled_mask: true,
       disabled_button: true,
@@ -78,13 +78,13 @@ export default class Home extends Component {
   }
   /**
    * ### Funcion getNetworkMask
-   * @param {Number} val mascara de red
+   * @param {String} val mascara de red
    * 
    * Obtiene la mascara de red del componente hijo y setea las propiedades:
    * **disabled_mask** y **network_mask**
    */
   getNetworkMask(val) {
-    if (val !== 0) this.setState({disabled_mask: false, network_mask: val})
+    if (val !== '') this.setState({disabled_mask: false, network_mask: val})
     else this.setState({disabled_mask: true})
   }
 }

@@ -4,7 +4,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Text,
-  TextInput,
   StyleSheet
 } from 'react-native';
 
@@ -12,19 +11,14 @@ export default class Results extends Component {
   constructor() {
     super()
     this.state = {
-      //TODO: Separar por secciones el state para que el no afecte mucho el paso de parametros
       isVisible: true,
       textButton: 'Decimal',
-      red_dec: '',
-      host_ini_dec: "",
-      host_fin_dec: "",
-      broadcast_dec: "",
-      clase_red: "",
-      red_bin: "",
-      submascara_red_bin: "",
-      host_ini_bin: "",
-      host_fin_bin: "",
-      broadcast_bin: "",
+      red: '0.0.0.0',
+      submascara_red: '0.0.0.0',
+      host_ini: '0.0.0.0',
+      host_fin: '0.0.0.0',
+      broadcast: '0.0.0.0',
+      clase: 'A',
     }
     this.bin2dec = this.bin2dec.bind(this)
     this.dec2bin = this.dec2bin.bind(this)
@@ -39,32 +33,30 @@ export default class Results extends Component {
   dec2bin(decimal) { return parseInt(decimal.toString(2)) }
   pad(n, length) {
     let number = n.toString();
-    while (number.length < length)
+    while (number.length < length) {
       number = "0" + number;
+    }
     return number;
   }
   componentWillMount() {
-    //TODO: refactorizar
     const { navigation } = this.props;
-    const ip_address = navigation.getParam('ip');
-    const networkMask = navigation.getParam('mask');
-    const ip_octetos = ip_address.split(".");
-    const mask = parseInt(networkMask);
-    this.setState({
-      red_dec: this.calcularRED(ip_octetos, mask),
-      broadcast_dec: this.calcularBROADCAST(ip_octetos, mask),
-      clase_red: this.calcularCLASE(ip_octetos),
-      submascara_red_bin: this.calcularSUBMASK(mask)
-    })
+    const ip_address = navigation.getParam('ip').split(".");
+    const network_mask = navigation.getParam('mask');
+    // calculo de variables
+    const network = this.getNetwork(ip_address, network_mask.split("."));
+    const broadcast = this.getBroadcast(ip_address, network_mask.split("."));
+    const type = this.getClass(ip_address);
+    const initRange = this.getInitialRange(network, network_mask);
+    const finalRange = this.getFinalRange(broadcast, network_mask);
 
     this.setState({
-      host_ini_dec: this.calcularRANGOINICIAL(this.state.red_dec, mask),
-      host_fin_dec:   this.calcularRANGOFINAL(this.state.red_dec, this.state.broadcast_dec, mask),
-      red_bin: this.calcularBINARY(this.state.red_dec),
-      host_ini_bin: this.calcularBINARY(this.state.host_ini_dec),
-      host_fin_bin: this.calcularBINARY(this.state.host_fin_dec),
-      broadcast_bin: this.calcularBINARY(this.state.broadcast_dec)
-    })
+      red: network,
+      mascara_red: network_mask,
+      clase: type,
+      host_ini: initRange,
+      host_fin: finalRange,
+      broadcast: broadcast,
+    });
   }
   render() {
     return (
@@ -80,33 +72,28 @@ export default class Results extends Component {
       </ScrollView>
     );
   }
-  calcularRED(ipArray, mask) {
-    //decimales separados
-    let [octeto1, octeto2, octeto3, octeto4] = ipArray;
-    //formar una cadena de 32 bits y separarlos en un array
-    let ip_binary = this.pad(this.dec2bin(parseInt(octeto1)), 8) +
-      this.pad(this.dec2bin(parseInt(octeto2)), 8) +
-      this.pad(this.dec2bin(parseInt(octeto3)), 8) +
-      this.pad(this.dec2bin(parseInt(octeto4)), 8);
-    let ip_binary_array = ip_binary.split("");
-    // obtener la red
-    let red = [];
-    let oct1 = "", oct2 = "", oct3 = "", oct4 = "";
-    for (let i = 0; i < 32; i++) {
-      red[i] = ip_binary_array[i];
-      if (mask < (i + 1)) { red[i] = "0"; }
-      //separamos el array en conjuntos de 8 
-      if (i <= 7) { oct1 += red[i]; }
-      if (i >= 8 && i <= 15) { oct2 += red[i]; }
-      if (i >= 16 && i <= 23) { oct3 += red[i]; }
-      if (i >= 24 && i <= 31) { oct4 += red[i]; }
+  /**
+   * ### Funcion getNetwork
+   * @param {Array} ip direccion IP 
+   * @param {Array} mask mascara de red
+   * 
+   * Realiza un AND binario entre los 
+   */
+  getNetwork(ip, mask) {
+    let network = new Array;
+    for (let i = 0; i < 4; i++) {
+      network.push(parseInt(ip[i]) & parseInt(mask[i]));
     }
-    // volvemos a decimal cada conjunto
-    return this.bin2dec(oct1) + '.' + this.bin2dec(oct2) + '.' + this.bin2dec(oct3) + '.' + this.bin2dec(oct4);
+    return network.join('.');
   }
-  calcularCLASE([first]) {
-    // let [first] = ipArray;
-    let octeto1 = parseInt(first);
+  /**
+   * ### Funcion getClass
+   * @param {[String]} param0 primer octeto de la ip
+   * 
+   * Calcula la clase de la direccion IP
+   */
+  getClass([first]) {
+    const octeto1 = parseInt(first);
     let tipo = null;
     if (octeto1 == 127) tipo = "Loopback";
     if (octeto1 >= 0 && octeto1 <= 126) tipo = "A";
@@ -116,122 +103,123 @@ export default class Results extends Component {
     if (octeto1 >= 240 && octeto1 <= 255) tipo = "E";
     return tipo;
   }
-  calcularRANGOINICIAL(red_str, mask) {
-    //convertir la red en vector
-    let red = red_str.split(".");
-    //convertimos el ultimo octeto a numero
-    let oct4_red = parseInt(red[3]);
-    //condiciones para mostrar el rango
-    if (mask < 31) {
-      oct4_red = oct4_red + 1;
+  /**
+   * ### Funcion getInitialRange
+   * @param {String} network red
+   * @param {Array} mask mascara de red
+   * 
+   * El ultimo octeto es cambiado por el valor hexadecimal 0x1 
+   */
+  getInitialRange(network, mask) {
+    //convertir la red en vector}
+    const [first, second, third, fourth] = network.split(".");
+    // si la mascara es 31 o 32 que tome los valores de la red y el broadcast
+    if (mask === '255.255.255.254' || mask === '255.255.255.255') return network;
+    // retornamos el valor del host inicial
+    else return `${first}.${second}.${third}.${parseInt(fourth) + 1}`;
+  }
+  /**
+   * ### Funcion getInitialRange 
+   * @param {String} broadcast broadcast
+   * @param {Array} mask mascara de red
+   * 
+   * El ultimo octeto es el valor menos de ese octeto
+   */
+  getFinalRange(broadcast, mask) {
+    const [first, second, third, fourth] = broadcast.split(".");
+    // si la mascara es 31 o 32 que tome los valores de la red y el broadcast
+    if (mask === '255.255.255.254' || mask === '255.255.255.255') return broadcast;
+    // retornamos el valor del host final
+    else return `${first}.${second}.${third}.${parseInt(fourth) - 1}`;
+  }
+  /**
+   * ### Función getBroadcast
+   * @param {Array} ip direccion IP 
+   * @param {Array} mask mascara de red
+   * 
+   * Realiza un or binario entre la ip y el resultado de un not binario entre 
+   * la mascara y el valor 0xFF.
+   * Realiza un join al array para formatearlo como una direccion de 32 bits.
+   */
+  getBroadcast(ip, mask) {
+    let broadcast = new Array;
+    // OR y NOT
+    for (let i = 0; i < 4; i++) {
+      broadcast.push(parseInt(ip[i]) | (~parseInt(mask[i]) & 0xFF)); 
     }
-    return red[0] + '.' + red[1] + '.' + red[2] + '.' + oct4_red;
+    return broadcast.join('.');
   }
-  calcularRANGOFINAL(red_str, broadcast_str, mask) {
-    //convertir la red y el broadcast en vector
-    let red = red_str.split(".");
-    let broadcast = broadcast_str.split(".");
-    //convertimos el ultimo octeto a numero
-    let oct4_red = parseInt(red[3]);
-    var oct4_broadcast = parseInt(broadcast[3]);
-    //condiciones para mostrar el rango
-    if (mask < 31) { oct4_broadcast = oct4_broadcast - 1; }
-    if (mask == 32) { oct4_broadcast = oct4_red; }
-    return broadcast[0] + '.' + broadcast[1] + '.' + broadcast[2] + '.' + oct4_broadcast;
-  }
-  calcularBROADCAST(ipArray, mask) {
-    //decimales separados
-    let octeto1 = parseInt(ipArray[0]);
-    let octeto2 = parseInt(ipArray[1]);
-    let octeto3 = parseInt(ipArray[2]);
-    let octeto4 = parseInt(ipArray[3]);
-    //formar una cadena de 32 bits y separarlos en un array
-    let ip_binary = this.pad(this.dec2bin(octeto1), 8) + this.pad(this.dec2bin(octeto2), 8) + this.pad(this.dec2bin(octeto3), 8) + this.pad(this.dec2bin(octeto4), 8);
-    let ip_binary_array = ip_binary.split("");
-    // obtener el broadcast
-    let broadcast = [];
-    let oct1 = "", oct2 = "", oct3 = "", oct4 = "";
-    for (let i = 0; i < 32; i++) {
-      broadcast[i] = ip_binary_array[i];
-      if (mask < (i + 1)) { broadcast[i] = "1"; }
-      //separamos el array en conjuntos de 8 
-      if (i <= 7) { oct1 += broadcast[i]; }
-      if (i >= 8 && i <= 15) { oct2 += broadcast[i]; }
-      if (i >= 16 && i <= 23) { oct3 += broadcast[i]; }
-      if (i >= 24 && i <= 31) { oct4 += broadcast[i]; }
-    }
-    // volvemos a decimal cada conjunto
-    return `${this.bin2dec(oct1)}.${this.bin2dec(oct2)}.${this.bin2dec(oct3)}.${this.bin2dec(oct4)}`
-  }
-  calcularBINARY(address) {
-    let octetos = address.split(".");
-    return `${this.pad(this.dec2bin(parseInt(octetos[0])), 8)}.
-          ${this.pad(this.dec2bin(parseInt(octetos[1])), 8)}.
-          ${this.pad(this.dec2bin(parseInt(octetos[2])), 8)}.
-          ${this.pad(this.dec2bin(parseInt(octetos[3])), 8)}`;
-  }
-  calcularSUBMASK(mask) {
-    let array = [];
-    let oct1 = "", oct2 = "", oct3 = "", oct4 = "";
-    for (let index = 0; index < 32; index++) {
-      array[index] = "1";
-      if (mask < (index + 1)) { array[index] = "0"; }
-      //separamos el array en conjuntos de 8 
-      if (index <= 7) { oct1 += array[index]; }
-      if (index >= 8 && index <= 15) { oct2 += array[index]; }
-      if (index >= 16 && index <= 23) { oct3 += array[index]; }
-      if (index >= 24 && index <= 31) { oct4 += array[index]; }
-    }
-    // volvemos a decimal cada conjunto
-    return `${oct1}.${oct2}.${oct3}.${oct4}`;
+  /**
+   * ### Función getBinary
+   * @param {String} address direccion 32 bits
+   * 
+   * Recibe una dirección de 32bits, la descompone y la transforma a binario
+   */
+  getBinary(address) {
+    const [first, second, third, fourth] = address.split(".");
+    return `${this.pad(this.dec2bin(parseInt(first)), 8)}.${this.pad(this.dec2bin(parseInt(second)), 8)}.${this.pad(this.dec2bin(parseInt(third)), 8)}.${this.pad(this.dec2bin(parseInt(fourth)), 8)}`;
   }
 }
-
+/**
+ * ### DecimalResults (Stateless Component)
+ * @param {Object} props propiedad data que se pasa al componente 
+ * 
+ * Muestra una vista con todas las propiedades que podemos encontrar de una red,
+ * elementos imprescindibles para el subneteo
+ */
 const DecimalResults = (props) => {
   return (
     <View>
       {/* {Red */}
       <Text style={[styles.textSmall]}>Red</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.red_dec}</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.red}</Text>
       {/* Submascara de Red */}
-      <Text style={[styles.textSmall]}>Submáscara de Red</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.clase_red}</Text>
+      <Text style={[styles.textSmall]}>Máscara de Red</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.mascara_red}</Text>
       {/* Clase */}
       <Text style={[styles.textSmall]}>Clase</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.clase_red}</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.clase}</Text>
       {/* Inicio de Host */}
       <Text style={[styles.textSmall]}>Inicio de Host</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>192.168.0.1</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.host_ini}</Text>
       {/* Fin de host */}
       <Text style={[styles.textSmall]}>Fin de Host</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>192.168.0.1</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.host_fin}</Text>
       {/* Broadcast */}
       <Text style={[styles.textSmall]}>Broadcast</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.broadcast_dec}</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.broadcast}</Text>
     </View>
   );
 }
+/**
+ * ### BinaryResults (Stateless Component)
+ * @param {Object} props propiedad data que se pasa al componente 
+ * 
+ * Muestra una vista con todas las propiedades que podemos encontrar de una red (en binario),
+ * elementos imprescindibles para el subneteo
+ */
 const BinaryResults = (props) => {
+  let bin = new Results();
   return (
     <View>
       {/* Red */}
       <Text style={[styles.textSmall]}>Red</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>00000000.00000000.00000000.00000000</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{bin.getBinary(props.data.red)}</Text>
       {/* Submascara de Red */}
-      <Text style={[styles.textSmall]}>Submáscara de Red</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.submascara_red_bin}</Text>
+      <Text style={[styles.textSmall]}>Máscara de Red</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{bin.getBinary(props.data.mascara_red)}</Text>
       {/* Clase */}
       <Text style={[styles.textSmall]}>Clase</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>192.168.0.1</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{props.data.clase}</Text>
       {/* Inicio de Host */}
       <Text style={[styles.textSmall]}>Inicio de Host</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>00000000.00000000.00000000.00000000</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{bin.getBinary(props.data.host_ini)}</Text>
       {/* Fin de host */}
       <Text style={[styles.textSmall]}>Fin de Host</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>00000000.00000000.00000000.00000000</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{bin.getBinary(props.data.host_fin)}</Text>
       {/* Broadcast */}
       <Text style={[styles.textSmall]}>Broadcast</Text>
-      <Text style={[styles.textMedium, styles.textBlack]}>00000000.00000000.00000000.00000000</Text>
+      <Text style={[styles.textMedium, styles.textBlack]}>{bin.getBinary(props.data.broadcast)}</Text>
     </View>
   );
 }
