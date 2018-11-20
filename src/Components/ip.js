@@ -43,7 +43,7 @@ export default class IP extends Component {
         <FormLabel>Dirección IP</FormLabel>
         <FormInput
           placeholder='Ingresa una dirección IP'
-          keyboardType={'numeric'}
+          keyboardType={'numbers-and-punctuation'}
           onChangeText={(ip) => {
             isCorrect = !this.validarIP(ip)
             this.setState({ ip })

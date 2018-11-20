@@ -5,6 +5,25 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import DataResults from "../Components/data_results";
 
 export default class Results extends Component {
+  static navigationOptions = {
+    title: 'Resultados',
+    headerStyle: {
+      backgroundColor: '#00685b',
+    },
+    headerTitleStyle: {
+      fontWeight: 'bold',
+      color: 'white'
+    },
+  };
+  /**
+   * ### Constructor
+   * 
+   * Para inicializar un state en el componente es necesario hacerlo en el constructor
+   * El constructor en un componente de React es llamado antes de que este sea montado.
+   * Cuando implementamos el constructor para un componente de React, debemos llamar a
+   * _super(props)_ antes de cualquier otra linea de código.
+   * De otra manera _this.props_ será _undefined_ en el constructor, lo cual puede ocasionar bugs.
+   */
   constructor() {
     super()
     this.state = {
@@ -169,7 +188,7 @@ export default class Results extends Component {
 }
 
 const styles = StyleSheet.create({
-  primary: { color: '#00695c' }, 
+  primary: { color: '#439688' }, 
   divider: {
     marginLeft: '4%',
     marginRight: '4%',

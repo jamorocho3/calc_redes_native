@@ -10,6 +10,16 @@ import IP from '../Components/ip';
 import NetworkMask from '../Components/network_mask';
 
 export default class Home extends Component {
+  static navigationOptions = {
+    title: 'Calculadora IP',
+    headerStyle: {
+      backgroundColor: '#00685b',
+    },
+    headerTitleStyle: {
+      fontWeight: 'bold',
+      color: 'white'
+    },
+  };
   /**
    * ### Constructor
    * @param {Object} props propiedades presentes en el componente, incluye el state
