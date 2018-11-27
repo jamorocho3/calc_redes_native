@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { 
-  Button,
-  Divider,
-  Card,
-} from 'react-native-elements';
+import { Button, Divider } from 'react-native-elements';
 //componentes
 import IP from '../Components/ip';
 import NetworkMask from '../Components/network_mask';
@@ -35,6 +31,8 @@ export default class Home extends Component {
     this.state = {
       ip_address: '',
       network_mask: '',
+      bg_ip: 'white',
+      ctxt_ip: '',
       disabled_ip: true,
       disabled_mask: true,
       disabled_button: true,
@@ -51,9 +49,7 @@ export default class Home extends Component {
     this.state.disabled_button = (this.state.disabled_ip == false && this.state.disabled_mask == false) ? false : true;
     return(
       <View>
-        <Card>
           <IP sendIP={this.getIp} />
-        </Card>
           <NetworkMask sendValue={this.getNetworkMask}/>
         <View style={styles.contentView}>
           <Button
@@ -80,9 +76,9 @@ export default class Home extends Component {
    */
   getIp(val, isDisabled) {
     if (val != '') {
-      if (isDisabled) this.setState({disabled_ip: false, ip_address: val})
-      else this.setState({disabled_ip: true})
-    }
+      if (isDisabled) this.setState({bg_ip: '#439889', ctxt_ip: 'white', disabled_ip: false, ip_address: val})
+      else this.setState({bg_ip: '#ff5f52', ctxt_ip: 'white', disabled_ip: true})
+    } else this.setState({bg_ip: 'white', ctxt_ip: 'black'});
   }
   /**
    * ### Funcion getNetworkMask

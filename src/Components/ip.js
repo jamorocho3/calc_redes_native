@@ -1,58 +1,39 @@
 import React, { Component } from "react";
-import { FormLabel, FormInput } from 'react-native-elements'
-import {
-  View,
-  Text,
-  StyleSheet
-} from "react-native";
+import { Card } from 'react-native-elements'
+import { StyleSheet, TextInput, Text, View } from "react-native";
+import Icon from 'react-native-vector-icons/Ionicons';
 
 export default class IP extends Component {
-  /**
-   * ### Constructor
-   * @param {Object} props propiedades presentes en el componente, incluye el state
-   * 
-   * Para inicializar un state en el componente es necesario hacerlo en el constructor
-   * El constructor en un componente de React es llamado antes de que este sea montado.
-   * Cuando implementamos el constructor para un componente de React, debemos llamar a
-   * _super(props)_ antes de cualquier otra linea de código.
-   * De otra manera _this.props_ será _undefined_ en el constructor, lo cual puede ocasionar bugs.
-   */
   constructor(props) {
     super(props);
-    this.state = {
-      ip: '',
-      state_ip: '',
-      validating_ip: {
-        width: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: 0,
-        backgroundColor: '#fff',
-      },
-    };
+    this.state = { text: '#232323', background: 'white', check: 'md-help' }
   }
-  /**
-   * ### Render (Obligatorio)
-   * Se encarga de renderizar en la vista movil el componente
-   * 
-   */
   render() {
-    state = this.props.state;
     return (
-      <View style={styles.contentView}>
-        <FormLabel>Dirección IP</FormLabel>
-        <FormInput
-          placeholder='Ingresa una dirección IP'
-          keyboardType={'numbers-and-punctuation'}
-          onChangeText={(ip) => {
-            isCorrect = !this.validarIP(ip)
-            this.setState({ ip })
-            this.props.sendIP(ip, isCorrect)
-          }}/>
-        <View style={this.state.validating_ip}>
-          <Text style={{ color: 'white' }}>{this.state.state_ip}</Text>
+      <Card
+        containerStyle={[{ backgroundColor: this.state.background }, style.card]}>
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ width: '70%' }}>
+            <Text style={{ color: this.state.text }}>
+              Dirección IP
+            </Text>
+            <TextInput
+              placeholder='Ingresa una dirección IP'
+              keyboardType={'decimal-pad'}
+              style={style.input}
+              onChangeText={ip => {
+                let pos = this.validarIP(ip)
+                if (pos === 0) this.setState({ text: '#232323', background: 'white', check: 'md-help' });
+                else if (pos === 1) this.setState({ text: 'white', background: '#ff5f52', check: 'md-close-circle' });
+                else if (pos === 2) this.setState({ text: 'white', background: '#439889', check: 'md-checkmark-circle' });
+                this.props.sendIP(ip, pos)
+              }} />
+          </View>
+          <View style={style.icon}>
+            <Icon name={this.state.check} size={40} color={this.state.text} />
+          </View>
         </View>
-      </View>
+      </Card>
     );
   }
   /**
@@ -62,50 +43,17 @@ export default class IP extends Component {
    * Funcion que recibe un string y valida si es una ip de 32 bits
    */
   validarIP(ip_address) {
-    //cadena de validacion para una ip de 32 bits 
-    let numcheck = /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/;
-    let octetos = ip_address.split(".");
-    let error = false;
-    if (ip_address.length == 0) return;
-    // en el if se valida que no esten letras
-    if (!numcheck.test(ip_address)) error = true;
-    // en el forEach se valida que los numeros esten entre [0-255] y la cadena no este vacia ni indefinida
-    octetos.forEach((valor) => {
-      if (parseInt(valor) > 255 || parseInt(valor) < 0 || valor == "" || typeof valor == 'undefined') error = true;
-    });
-    if (error == true) {
-      this.setState({
-        state_ip: 'IP NO VÁLIDA',
-        validating_ip: {
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: 40,
-          backgroundColor: '#ff5f52'
-        }
-      })
-    } else if (error == false) {
-      // si el error es false coloca la mascara por defecto para esa red
-      this.setState({
-        state_ip: 'IP VÁLIDA',
-        validating_ip: {
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: 40,
-          backgroundColor: '#439889'
-        }
-      })
-      // TODO: proxima actualización
-      //   let clase = this.calcularCLASE(octetos);
-      //   if(clase == 'A' || clase == 'Loopback') this.networkMask = '7';
-      //   if(clase == 'B') this.networkMask = '15';
-      //   if(clase == 'C') this.networkMask = '23';
-    }
-    return error;
+    let regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    let isValid = regex.test(ip_address);
+    // Se realiza una validacion con regex para una ip de 32 bits
+    if (ip_address.length == 0) return 0; // null
+    else if (!isValid) return 1; // false
+    else if (isValid) return 2; // true
   }
 }
 
-const styles = StyleSheet.create({
-  contentView: { marginBottom: 10 },
+const style = StyleSheet.create({
+  card: { padding: '5%', borderWidth: 0 },
+  input: { color: 'white', paddingTop: '4%', paddingBottom: '0%' },
+  icon: { width: '30%', flex: 1, justifyContent: "center", alignItems: "center" }
 });

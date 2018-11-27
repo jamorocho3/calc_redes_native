@@ -8,7 +8,7 @@ import { value } from "../Res/data/network.json";
 export default class NetworkMask extends Component {
   constructor() {
     super();
-    this.state = { network_mask: '', text: '#232323', background: 'white', check: 'md-help' }
+    this.state = { network_mask: '', text: 'white', background: '#439889', check: 'md-checkmark-circle' }
   }
 
   render() {
