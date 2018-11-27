@@ -54,9 +54,7 @@ export default class Home extends Component {
         <Card>
           <IP sendIP={this.getIp} />
         </Card>
-        <Card>
           <NetworkMask sendValue={this.getNetworkMask}/>
-        </Card>
         <View style={styles.contentView}>
           <Button
             raised
