@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Divider } from 'react-native-elements';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { Divider } from 'react-native-elements';
+import * as Animatable from 'react-native-animatable';
+import { ScrollView, StyleSheet, TouchableWithoutFeedback, Text } from 'react-native';
 // Components
 import DataResults from "../Components/data_results";
 
@@ -10,6 +11,7 @@ export default class Results extends Component {
     headerStyle: {
       backgroundColor: '#00685b',
     },
+    headerTintColor: 'white',
     headerTitleStyle: {
       fontWeight: 'bold',
       color: 'white'
@@ -76,25 +78,24 @@ export default class Results extends Component {
   render() {
     return (
       <ScrollView>
-        <Button 
-          buttonStyle={styles.buttonTop}
-          textStyle={{ fontSize: 18 }}
-          backgroundColor={styles.primary.color}
-          onPress={this.toggle.bind(this)}
-          title={this.state.textButton} />
-        <View>
-          {this.state.isVisible ? <DataResults data={this.state}/> :
-            <DataResults data={{
-               red: this.getBinary(this.state.red),
-               mascara_red: this.getBinary(this.state.mascara_red),
-               clase: this.state.clase,
-               host_ini: this.getBinary(this.state.host_ini),
-               host_fin: this.getBinary(this.state.host_fin),
-               broadcast: this.getBinary(this.state.broadcast),
-            }}/>
-          }
-          <Divider style={styles.divider} />
-        </View>
+        {/* Toogle button */}
+        <TouchableWithoutFeedback onPress={this.toggle.bind(this)}>
+          <Animatable.View iterationCount="infinite" animation="pulse" style={styles.buttonTop}>
+            <Text style={styles.buttonTextStyle}>{this.state.textButton}</Text>
+          </Animatable.View>
+        </TouchableWithoutFeedback>
+        {/* Resultados */}
+        {this.state.isVisible ? <DataResults data={this.state}/> :
+          <DataResults data={{
+              red: this.getBinary(this.state.red),
+              mascara_red: this.getBinary(this.state.mascara_red),
+              clase: this.state.clase,
+              host_ini: this.getBinary(this.state.host_ini),
+              host_fin: this.getBinary(this.state.host_fin),
+              broadcast: this.getBinary(this.state.broadcast),
+          }}/>
+        }
+        <Divider style={styles.divider} />
       </ScrollView>
     );
   }
@@ -188,7 +189,6 @@ export default class Results extends Component {
 }
 
 const styles = StyleSheet.create({
-  primary: { color: '#439688' }, 
   divider: {
     marginLeft: '4%',
     marginRight: '4%',
@@ -196,7 +196,19 @@ const styles = StyleSheet.create({
     marginTop: '4%'
   },
   buttonTop: {
-    marginLeft:'-5%',
-    marginRight:'-5%'
+    marginTop: '4%',
+    marginLeft:'4%',
+    marginRight:'4%',
+    paddingTop: '4%',
+    paddingBottom: '4%',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: "#439688"
+  },
+  buttonTextStyle: {
+    fontWeight: "bold",
+    fontSize: 18,
+    color: 'white'
   }
 });

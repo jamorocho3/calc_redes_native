@@ -31,10 +31,8 @@ export default class Home extends Component {
     this.state = {
       ip_address: '',
       network_mask: '',
-      bg_ip: 'white',
-      ctxt_ip: '',
       disabled_ip: true,
-      disabled_mask: true,
+      disabled_network: true,
       disabled_button: true,
     }
     this.getNetworkMask = this.getNetworkMask.bind(this);
@@ -46,7 +44,6 @@ export default class Home extends Component {
    * 
    */
   render() {
-    this.state.disabled_button = (this.state.disabled_ip == false && this.state.disabled_mask == false) ? false : true;
     return(
       <View>
           <IP sendIP={this.getIp} />
@@ -54,12 +51,11 @@ export default class Home extends Component {
         <View style={styles.contentView}>
           <Button
             raised
-            backgroundColor={styles.primary.color} 
+            backgroundColor={styles.primary.color}
             borderRadius={2}
             icon={{name: 'cached'}}
-            disabled={this.state.disabled_button}
+            disabled={(!this.state.disabled_ip && !this.state.disabled_network) ? false : true}
             onPress={() => this.props.navigation.navigate('ResultScreen', {ip: this.state.ip_address, mask: this.state.network_mask})}
-            large={false}
             title='CALCULAR' />
           <Divider style={styles.divider} />
         </View>
@@ -75,10 +71,10 @@ export default class Home extends Component {
    * **disabled_ip** y **select_mask**
    */
   getIp(val, isDisabled) {
-    if (val != '') {
-      if (isDisabled) this.setState({bg_ip: '#439889', ctxt_ip: 'white', disabled_ip: false, ip_address: val})
-      else this.setState({bg_ip: '#ff5f52', ctxt_ip: 'white', disabled_ip: true})
-    } else this.setState({bg_ip: 'white', ctxt_ip: 'black'});
+    if (val !== '') {
+      if (isDisabled == 0 || isDisabled == 1) this.setState({disabled_ip: true});
+      else this.setState({disabled_ip: false, ip_address: val});
+    }
   }
   /**
    * ### Funcion getNetworkMask
@@ -87,9 +83,8 @@ export default class Home extends Component {
    * Obtiene la mascara de red del componente hijo y setea las propiedades:
    * **disabled_mask** y **network_mask**
    */
-  getNetworkMask(val) {
-    if (val !== '') this.setState({disabled_mask: false, network_mask: val})
-    else this.setState({disabled_mask: true})
+  getNetworkMask(val, isDisabled) {
+    this.setState({network_mask: val, disabled_network: isDisabled})
   }
 }
 
