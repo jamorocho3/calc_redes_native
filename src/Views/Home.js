@@ -4,6 +4,7 @@ import { Button, Divider } from 'react-native-elements';
 //componentes
 import IP from '../Components/ip';
 import NetworkMask from '../Components/network_mask';
+import Info from '../Components/information';
 
 export default class Home extends Component {
   static navigationOptions = {
@@ -46,10 +47,11 @@ export default class Home extends Component {
   render() {
     return(
       <View>
+        <View style={{ height: '55%'}}>
           <IP sendIP={this.getIp} />
           <NetworkMask sendValue={this.getNetworkMask}/>
-        <View style={styles.contentView}>
           <Button
+            containerViewStyle={{ marginTop: '4%'}}
             raised
             backgroundColor={styles.primary.color}
             borderRadius={2}
@@ -58,6 +60,9 @@ export default class Home extends Component {
             onPress={() => this.props.navigation.navigate('ResultScreen', {ip: this.state.ip_address, mask: this.state.network_mask})}
             title='CALCULAR' />
           <Divider style={styles.divider} />
+        </View>
+        <View style={{ height: '45%'}}>
+          <Info />
         </View>
       </View>
     );
@@ -90,15 +95,57 @@ export default class Home extends Component {
 
 const styles = StyleSheet.create({
   primary: { color: '#00695c' },
-  contentView: {
-    marginTop: '4%',
-    marginBottom: '2%'
-  }, size: {
-    fontSize: 13
-  }, divider: {
+  contentView: { marginTop: '4%', },
+  size: { fontSize: 13 }, 
+  divider: {
     marginLeft: '4%',
     marginRight: '4%',
     backgroundColor: '#00695c',
     marginTop: '4%'
   }
 });
+
+
+
+// import React, { Component } from 'react';
+// import {
+//   StyleSheet,
+//   View,
+//   Dimensions
+// } from 'react-native';
+ 
+// import IP from '../Components/ip';
+
+
+// var { height } = Dimensions.get('window');
+ 
+// var box_count = 2;
+// var box_height = (height - 30) / box_count;
+ 
+// export default class VerticalStackLayout extends Component {
+//   render() {
+//     return (
+//         <View style={styles.container}>
+//             <View style={[styles.box, styles.box1]}>
+//             </View>
+//             <View style={[styles.box, styles.box2]}></View>
+//         </View>
+//     );
+//   }
+// }
+ 
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     flexDirection: 'column'
+//   },
+//   box: {
+//     height: box_height
+//   },
+//   box1: {
+//     backgroundColor: '#2196F3'
+//   },
+//   box2: {
+//     backgroundColor: '#8BC34A'
+//   }
+// });
